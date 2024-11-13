@@ -41,4 +41,38 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, Long> {
         @Param("price") String price,
         @Param("rating") Double rating
     );
+    @Query(value = 
+        "SELECT " +
+        "   r.id, " +
+        "   r.name, " +
+        "   r.category, " +
+        "   r.cuisine_type, " +
+        "   r.price_range, " +
+        "   r.address, " +
+        "   r.contact_info, " +
+        "   r.description, " +
+        "   r.latitude, " +
+        "   r.longitude, " +
+        "   COALESCE(AVG(CAST(rev.rating AS FLOAT)), 0) as avg_rating, " +
+        "   (" +
+        "       6371 * acos(" +
+        "           cos(radians(:latitude)) * cos(radians(r.latitude)) * " +
+        "           cos(radians(r.longitude) - radians(:longitude)) + " +
+        "           sin(radians(:latitude)) * sin(radians(r.latitude))" +
+        "       )" +
+        "   ) AS distance " +
+        "FROM restaurants r " +
+        "LEFT JOIN reviews rev ON r.id = rev.restaurant_id " +
+        "WHERE r.latitude IS NOT NULL " +
+        "AND r.longitude IS NOT NULL " +
+        "GROUP BY r.id, r.name, r.category, r.cuisine_type, r.price_range, " +
+        "         r.address, r.contact_info, r.description, r.latitude, r.longitude " +
+        "HAVING distance <= :radius " +
+        "ORDER BY distance", 
+        nativeQuery = true)
+    List<Object[]> findNearbyRestaurants(
+        @Param("latitude") double latitude,
+        @Param("longitude") double longitude,
+        @Param("radius") double radius
+    );
 }

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Location Search Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        .search-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .search-input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+        }
+        .token-input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+        .suggestion-item {
+            padding: 10px;
+            cursor: pointer;
+        }
+        .suggestion-item:hover {
+            background-color: #f0f0f0;
+        }
+        #debug {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>Location Search Test</h1>
+    
+    <input type="text" 
+           id="tokenInput" 
+           class="token-input" 
+           placeholder="Paste your JWT token here">
+    
+    <div class="search-container">
+        <input type="text" 
+               id="locationInput" 
+               class="search-input" 
+               placeholder="Enter location (e.g., Boston)"
+               autocomplete="off">
+        <div id="suggestions" class="suggestions"></div>
+    </div>
+
+    <div id="debug"></div>
+
+    <script>
+        const locationInput = document.getElementById('locationInput');
+        const tokenInput = document.getElementById('tokenInput');
+        const suggestionsDiv = document.getElementById('suggestions');
+        const debugDiv = document.getElementById('debug');
+        let debounceTimeout = null;
+
+        // Try to get token from localStorage
+        const savedToken = localStorage.getItem('token');
+        if (savedToken) {
+            tokenInput.value = savedToken;
+            debugDiv.textContent += 'Loaded token from localStorage\n';
+        }
+
+        // Save token to localStorage when entered
+        tokenInput.addEventListener('change', function(e) {
+            localStorage.setItem('token', e.target.value);
+            debugDiv.textContent += 'Saved new token to localStorage\n';
+        });
+
+        // Test the API connection first
+        async function testAPI() {
+            try {
+                const response = await fetch('http://localhost:8081/api/search/test', {
+                    headers: {
+                        'Authorization': 'Bearer ' + tokenInput.value
+                    }
+                });
+                const text = await response.text();
+                debugDiv.textContent += 'API Test: ' + text + '\n';
+            } catch (error) {
+                debugDiv.textContent += 'API Test Error: ' + error.message + '\n';
+            }
+        }
+
+        locationInput.addEventListener('input', function(e) {
+            clearTimeout(debounceTimeout);
+            const query = e.target.value.trim();
+            
+            debugDiv.textContent += `Input changed: ${query}\n`;
+            
+            if (query.length >= 3) {
+                debounceTimeout = setTimeout(() => searchLocations(query), 300);
+            } else {
+                suggestionsDiv.style.display = 'none';
+            }
+        });
+
+        async function searchLocations(query) {
+            debugDiv.textContent += `\nSearching for: ${query}\n`;
+            
+            if (!tokenInput.value) {
+                debugDiv.textContent += 'Error: No JWT token provided\n';
+                return;
+            }
+            
+            try {
+                const response = await fetch(
+                    `http://localhost:8081/api/search/locations?query=${encodeURIComponent(query)}`,
+                    {
+                        headers: {
+                            'Authorization': 'Bearer ' + tokenInput.value,
+                            'Accept': 'application/json'
+                        }
+                    }
+                );
+                console.log(response);
+                debugDiv.textContent += `Response status: ${response.status}\n`;
+                const responseText = await response.text();
+                debugDiv.textContent += `Raw response: ${responseText}\n`;
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                // Try to parse the response as JSON
+                let suggestions;
+                console.log(responseText);
+                try {
+                    suggestions = JSON.parse(responseText);
+                } catch (e) {
+                    throw new Error(`Failed to parse JSON: ${e.message}\nRaw response: ${responseText}`);
+                }
+                
+                debugDiv.textContent += `Parsed ${suggestions.length} suggestions\n`;
+                
+                if (suggestions.length > 0) {
+                    suggestionsDiv.innerHTML = suggestions.map(suggestion => `
+                        <div class="suggestion-item">
+                            ${suggestion.displayName}
+                            <br>
+                            <small>(${suggestion.latitude}, ${suggestion.longitude})</small>
+                        </div>
+                    `).join('');
+                    suggestionsDiv.style.display = 'block';
+                } else {
+                    suggestionsDiv.style.display = 'none';
+                }
+            } catch (error) {
+                debugDiv.textContent += `Error: ${error.message}\n`;
+                console.error('Error:', error);
+            }
+        }
+
+        // Test API when token is entered
+        tokenInput.addEventListener('change', testAPI);
+    </script>
+</body>
+</html>
