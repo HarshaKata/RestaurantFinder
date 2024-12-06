@@ -10,6 +10,7 @@ com/example/RestaurantFinder/service/SearchService.class
 com/example/RestaurantFinder/configs/SecurityConfiguration.class
 com/example/RestaurantFinder/responses/LoginResponse.class
 com/example/RestaurantFinder/service/GeoCodingService$LocationSuggestion.class
+com/example/RestaurantFinder/service/S3Service.class
 com/example/RestaurantFinder/controller/AdminController.class
 com/example/RestaurantFinder/configs/CustomUserDetails.class
 com/example/RestaurantFinder/bootstrap/RoleSeeder.class
@@ -18,11 +19,14 @@ com/example/RestaurantFinder/service/JwtService.class
 com/example/RestaurantFinder/configs/JwtAuthenticationFilter.class
 com/example/RestaurantFinder/RestaurantFinder.class
 com/example/RestaurantFinder/configs/RestTemplateConfig.class
+com/example/RestaurantFinder/configs/S3Config.class
 com/example/RestaurantFinder/repo/RoleRepository.class
 com/example/RestaurantFinder/utils/SecurityUtils.class
 com/example/RestaurantFinder/dtos/RestaurantDto.class
 com/example/RestaurantFinder/dtos/ReviewDto.class
+com/example/RestaurantFinder/service/S3ServiceException.class
 com/example/RestaurantFinder/service/GeoCodingService$LocationCoordinates.class
+com/example/RestaurantFinder/configs/WebConfig.class
 com/example/RestaurantFinder/dtos/ReviewDto$ReviewDtoBuilder.class
 com/example/RestaurantFinder/controller/ReviewController.class
 com/example/RestaurantFinder/controller/AuthenticationController$ErrorResponse.class
@@ -34,5 +38,6 @@ com/example/RestaurantFinder/service/ReviewService.class
 com/example/RestaurantFinder/model/Restaurant.class
 com/example/RestaurantFinder/utils/ErrorResponse.class
 com/example/RestaurantFinder/service/GeoCodingService.class
+com/example/RestaurantFinder/service/OverpassService.class
 com/example/RestaurantFinder/dtos/LoginUserDto.class
 com/example/RestaurantFinder/repo/UserRepository.class

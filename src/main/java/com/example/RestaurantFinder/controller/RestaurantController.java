@@ -1,14 +1,22 @@
 package com.example.RestaurantFinder.controller;
 
-import com.example.RestaurantFinder.model.Reviews;
-import com.example.RestaurantFinder.repo.RestaurantRepository;
 
+// import com.example.RestaurantFinder.dtos.PaginationRequestDTO;
 import com.example.RestaurantFinder.dtos.RestaurantDto;
 import com.example.RestaurantFinder.model.Restaurant;
+import com.example.RestaurantFinder.model.Reviews;
+import com.example.RestaurantFinder.repo.RestaurantRepository;
 import com.example.RestaurantFinder.service.RestaurantService;
+import com.example.RestaurantFinder.service.S3Service;
 import com.example.RestaurantFinder.utils.ErrorResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.CollectionUtils;
@@ -16,8 +24,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.mail.Multipart;
+import java.io.File;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @RequestMapping("/restaurants")
 @RestController
@@ -25,8 +36,12 @@ public class RestaurantController {
 
     @Autowired
     RestaurantService restaurantService;
+
     @Autowired
     RestaurantRepository restaurantRepository;
+
+    @Autowired
+    S3Service s3Service;
 
     @GetMapping("/getRestaurants")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
@@ -40,9 +55,11 @@ public class RestaurantController {
                     .body(new ErrorResponse(
                             HttpStatus.INTERNAL_SERVER_ERROR.value(),
                             "Error fetching restaurants: " + e.getMessage(),
-                            LocalDateTime.now()));
+                            LocalDateTime.now()
+                    ));
         }
     }
+
 
     @GetMapping("/restaurants/{name}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
@@ -55,7 +72,8 @@ public class RestaurantController {
                         .body(new ErrorResponse(
                                 HttpStatus.NOT_FOUND.value(),
                                 "Restaurant not found with name: " + name,
-                                LocalDateTime.now()));
+                                LocalDateTime.now()
+                        ));
             }
             return ResponseEntity.ok(restaurants);
         } catch (Exception e) {
@@ -64,23 +82,29 @@ public class RestaurantController {
                     .body(new ErrorResponse(
                             HttpStatus.INTERNAL_SERVER_ERROR.value(),
                             "Error searching restaurant: " + e.getMessage(),
-                            LocalDateTime.now()));
+                            LocalDateTime.now()
+                    ));
         }
     }
 
     @PostMapping(value = "/addRestaurant", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE })
     @PreAuthorize("hasRole('OWNER')")
     public ResponseEntity<?> addRestaurant(
-            @RequestPart("restaurantDetails") RestaurantDto restaurantDto,
+            @RequestPart(value = "restaurantDetails", required = false) RestaurantDto restaurantDto,
             @RequestPart(value = "restaurantImage", required = false) MultipartFile restaurantImage) {
         try {
             // Upload image to S3 if provided
+            System.out.println(restaurantDto);
+            System.out.println(restaurantImage);
+
+            String imageUrl = null;
             if (restaurantImage != null && !restaurantImage.isEmpty()) {
-                String imageUrl = s3Service.uploadFile(restaurantImage,restaurantDto.getName());
+                System.out.println("entered if");
+                imageUrl = s3Service.uploadFile(restaurantImage,restaurantDto.getName());
+                // System.out.println(imageUrl);
                 restaurantDto.setPhotoUrl(imageUrl);
             }
 
-            // Save restaurant with potentially updated DTO (including image URL)
             Restaurant savedRestaurant = restaurantService.addRestaurant(restaurantDto);
 
             return ResponseEntity
@@ -112,17 +136,19 @@ public class RestaurantController {
                     .body(new ErrorResponse(
                             HttpStatus.INTERNAL_SERVER_ERROR.value(),
                             "Error adding restaurant: " + e.getMessage(),
-                            LocalDateTime.now()));
+                            LocalDateTime.now()
+                    ));
         }
     }
 
     @PostMapping("/updateRestaurant")
     @PreAuthorize("hasRole('OWNER')")
-    public ResponseEntity<?> updateRestaurant(@RequestBody RestaurantDto restaurantDto) {
+    public ResponseEntity<?> updateRestaurant( @RequestBody RestaurantDto restaurantDto) {
         try {
             // Fetch the restaurant by ID
-            Restaurant existingRestaurant = restaurantRepository.findById(restaurantDto.getRestaurantId()).orElseThrow(
-                    () -> new Exception("Restaurant not found with ID: " + restaurantDto.getRestaurantId()));
+            Restaurant existingRestaurant = restaurantRepository.findById(restaurantDto.getRestaurantId()).orElseThrow(() ->
+                    new Exception("Restaurant not found with ID: " + restaurantDto.getRestaurantId())
+            );
 
             // Update restaurant details
             existingRestaurant.setName(restaurantDto.getName());
@@ -148,17 +174,20 @@ public class RestaurantController {
                     .body(new ErrorResponse(
                             HttpStatus.INTERNAL_SERVER_ERROR.value(),
                             "Error updating restaurant: " + e.getMessage(),
-                            LocalDateTime.now()));
+                            LocalDateTime.now()
+                    ));
         }
     }
 
+
     @PostMapping("/deleteRestaurant")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> deleteRestaurant(@RequestParam Long restaurantId) {
         try {
             // Check if the restaurant exists
-            Restaurant restaurant = restaurantRepository.findById(restaurantId)
-                    .orElseThrow(() -> new Exception("Restaurant not found with ID: " + restaurantId));
+            Restaurant restaurant = restaurantRepository.findById(restaurantId).orElseThrow(() ->
+                    new Exception("Restaurant not found with ID: " + restaurantId)
+            );
 
             // Delete the restaurant
             restaurantRepository.delete(restaurant);
@@ -174,7 +203,8 @@ public class RestaurantController {
                     .body(new ErrorResponse(
                             HttpStatus.INTERNAL_SERVER_ERROR.value(),
                             "Error deleting restaurant: " + e.getMessage(),
-                            LocalDateTime.now()));
+                            LocalDateTime.now()
+                    ));
         }
     }
 
@@ -194,8 +224,13 @@ public class RestaurantController {
                     .body(new ErrorResponse(
                             HttpStatus.INTERNAL_SERVER_ERROR.value(),
                             "Error fetching duplicate restaurants: " + e.getMessage(),
-                            LocalDateTime.now()));
+                            LocalDateTime.now()
+                    ));
         }
     }
+
+
+
+
 
 }

@@ -4,6 +4,7 @@
 /Users/harshakata/Desktop/RestaurantFinder_/src/main/java/com/example/RestaurantFinder/configs/CustomUserDetails.java
 /Users/harshakata/Desktop/RestaurantFinder_/src/main/java/com/example/RestaurantFinder/configs/JwtAuthenticationFilter.java
 /Users/harshakata/Desktop/RestaurantFinder_/src/main/java/com/example/RestaurantFinder/configs/RestTemplateConfig.java
+/Users/harshakata/Desktop/RestaurantFinder_/src/main/java/com/example/RestaurantFinder/configs/S3Config.java
 /Users/harshakata/Desktop/RestaurantFinder_/src/main/java/com/example/RestaurantFinder/configs/SecurityConfiguration.java
 /Users/harshakata/Desktop/RestaurantFinder_/src/main/java/com/example/RestaurantFinder/configs/WebConfig.java
 /Users/harshakata/Desktop/RestaurantFinder_/src/main/java/com/example/RestaurantFinder/controller/AdminController.java
@@ -31,6 +32,8 @@
 /Users/harshakata/Desktop/RestaurantFinder_/src/main/java/com/example/RestaurantFinder/service/OverpassService.java
 /Users/harshakata/Desktop/RestaurantFinder_/src/main/java/com/example/RestaurantFinder/service/RestaurantService.java
 /Users/harshakata/Desktop/RestaurantFinder_/src/main/java/com/example/RestaurantFinder/service/ReviewService.java
+/Users/harshakata/Desktop/RestaurantFinder_/src/main/java/com/example/RestaurantFinder/service/S3Service.java
+/Users/harshakata/Desktop/RestaurantFinder_/src/main/java/com/example/RestaurantFinder/service/S3ServiceException.java
 /Users/harshakata/Desktop/RestaurantFinder_/src/main/java/com/example/RestaurantFinder/service/SearchService.java
 /Users/harshakata/Desktop/RestaurantFinder_/src/main/java/com/example/RestaurantFinder/utils/ErrorResponse.java
 /Users/harshakata/Desktop/RestaurantFinder_/src/main/java/com/example/RestaurantFinder/utils/SecurityUtils.java

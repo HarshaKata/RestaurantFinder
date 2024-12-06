@@ -60,7 +60,9 @@ public class Restaurant {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    
+    @Column(name = "photo_url")
+    private String photoUrl;
+
 
     @PrePersist
     protected void onCreate() {

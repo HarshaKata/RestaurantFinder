@@ -30,4 +30,5 @@ public class RestaurantDto {
 
     private String cuisineType;
     private String hours;
+    private String photoUrl;
 }
