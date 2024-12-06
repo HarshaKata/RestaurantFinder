@@ -11,6 +11,7 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RestaurantDto {
+    private Long restaurantId;
     private String name;
 
     private String address;
@@ -28,4 +29,5 @@ public class RestaurantDto {
     private String priceRange;
 
     private String cuisineType;
+    private String hours;
 }

@@ -42,6 +42,28 @@ public class RestaurantService {
         }
         Long userId =  SecurityUtils.getCurrentUserId();
         User currentUser = userRepository.findById(userId).get();
+        Restaurant newRestaurant = new Restaurant();
+        newRestaurant.setDescription(restaurantDto.getDescription());
+        newRestaurant.setName(restaurantDto.getName());
+        newRestaurant.setCategory(restaurantDto.getCategory());
+        newRestaurant.setAddress(restaurantDto.getAddress());
+        newRestaurant.setContactInfo(restaurantDto.getContactInfo());
+        newRestaurant.setCuisineType(restaurantDto.getCuisineType());
+        newRestaurant.setLatitude(Double.valueOf(restaurantDto.getLatitude()));
+        newRestaurant.setLongitude(Double.valueOf(restaurantDto.getLongitude()));
+        newRestaurant.setOwner(currentUser);
+        newRestaurant.setPriceRange(restaurantDto.getPriceRange());
+        return restaurantRepository.save(newRestaurant);
+    }
+
+    public Restaurant updateRestaurant(RestaurantDto restaurantDto) {
+        // Get the current user's ID from JWT token
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+        }
+        Long userId =  SecurityUtils.getCurrentUserId();
+        User currentUser = userRepository.findById(userId).get();
 
         Restaurant newRestaurant = new Restaurant();
         newRestaurant.setDescription(restaurantDto.getDescription());

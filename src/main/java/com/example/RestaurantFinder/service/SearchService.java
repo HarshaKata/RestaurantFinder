@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.*;
 
 @Service
 public class SearchService {
@@ -21,6 +22,9 @@ public class SearchService {
 
     @Autowired
     private GeoCodingService geoCodingService;
+
+    @Autowired
+    private OverpassService overpassService;
     
     public List<Map<String, Object>> searchRestaurants(
             String query, 
@@ -95,17 +99,17 @@ public class SearchService {
             Double longitude, 
             Double radius) {
             
-        // Search for restaurants within the radius (in kilometers)
-        List<Object[]> results = restaurantRepository.findNearbyRestaurants(
+        List<Map<String, Object>> allResults = new ArrayList<>();
+        
+        // Get and process database results first
+        List<Object[]> dbResults = restaurantRepository.findNearbyRestaurants(
             latitude, longitude, radius
         );
         
-        List<Map<String, Object>> response = new ArrayList<>();
-        
-        for (Object[] result : results) {
+        List<Map<String, Object>> dbRestaurants = new ArrayList<>();
+        for (Object[] result : dbResults) {
             try {
                 Map<String, Object> restaurantMap = new HashMap<>();
-                
                 restaurantMap.put("id", ((Number) result[0]).longValue());
                 restaurantMap.put("name", (String) result[1]);
                 restaurantMap.put("category", (String) result[2]);
@@ -118,14 +122,33 @@ public class SearchService {
                 restaurantMap.put("longitude", (Double) result[9]);
                 restaurantMap.put("averageRating", Math.round(((Number) result[10]).doubleValue() * 10.0) / 10.0);
                 restaurantMap.put("distance", Math.round(((Number) result[11]).doubleValue() * 100.0) / 100.0);
+                restaurantMap.put("source", "Database");
                 
-                response.add(restaurantMap);
+                dbRestaurants.add(restaurantMap);
             } catch (Exception e) {
-                logger.error("Error mapping restaurant result", e);
+                logger.error("Error mapping database restaurant result", e);
             }
         }
         
-        return response;
+        // Sort database results by distance
+        dbRestaurants.sort(Comparator.comparingDouble(r -> ((Double) r.get("distance"))));
+        
+        // Get OpenStreetMap results
+        List<Map<String, Object>> osmResults = overpassService.findNearbyRestaurants(
+            latitude, longitude, radius
+        );
+        
+        // Sort OpenStreetMap results by distance
+        osmResults.sort(Comparator.comparingDouble(r -> ((Double) r.get("distance"))));
+        
+        // Combine results - database first, then OSM
+        allResults.addAll(dbRestaurants);
+        allResults.addAll(osmResults);
+        
+        logger.info("Found {} database restaurants and {} OSM restaurants", 
+                   dbRestaurants.size(), osmResults.size());
+        
+        return allResults;
     }
     
 }

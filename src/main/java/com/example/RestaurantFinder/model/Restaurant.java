@@ -47,7 +47,8 @@ public class Restaurant {
     @Column(name = "contactInfo")
     private String contactInfo;
 
-    @Column(columnDefinition = "JSON")
+    // @Column(columnDefinition = "JSON")
+    @Column(name = "hours")
     private String hours;
 
     @Column(columnDefinition = "TEXT")
@@ -58,6 +59,8 @@ public class Restaurant {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    
 
     @PrePersist
     protected void onCreate() {

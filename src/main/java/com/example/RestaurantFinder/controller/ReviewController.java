@@ -1,6 +1,6 @@
 package com.example.RestaurantFinder.controller;
 
-
+import jakarta.persistence.EntityNotFoundException;
 import com.example.RestaurantFinder.dtos.ReviewDto;
 import com.example.RestaurantFinder.model.Restaurant;
 import com.example.RestaurantFinder.model.Reviews;

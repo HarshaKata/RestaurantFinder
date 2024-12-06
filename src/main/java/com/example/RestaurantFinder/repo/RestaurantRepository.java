@@ -11,6 +11,10 @@ import java.util.List;
 @Repository
 public interface RestaurantRepository extends JpaRepository<Restaurant, Long> {
     List<Restaurant> findAllByName(String name);
+    @Query("SELECT r FROM Restaurant r " +
+            "WHERE (r.name, r.address) IN " +
+            "(SELECT r2.name, r2.address FROM Restaurant r2 GROUP BY r2.name, r2.address HAVING COUNT(r2) > 1)")
+    List<Restaurant> findDuplicateRestaurants();
 
     List<Restaurant> findAllByOwner(User owner);
 
