@@ -51,10 +51,10 @@ public class SearchService {
             restaurantMap.put("address", (String) result[5]);
             restaurantMap.put("contactInfo", (String) result[6]);
             restaurantMap.put("description", (String) result[7]);
-            restaurantMap.put("photoUrl",(String) result[8]);
+            // restaurantMap.put("photoUrl",(String) result[8]);
             
             // Average rating is the last column (index 8)
-            Double avgRating = ((Number) result[9]).doubleValue();
+            Double avgRating = ((Number) result[8]).doubleValue();
             restaurantMap.put("averageRating", Math.round(avgRating * 10.0) / 10.0);
             
             response.add(restaurantMap);
