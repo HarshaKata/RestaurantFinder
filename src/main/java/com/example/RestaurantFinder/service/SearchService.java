@@ -39,6 +39,7 @@ public class SearchService {
         List<Map<String, Object>> response = new ArrayList<>();
         
         for (Object[] result : results) {
+            System.out.println(result);
             Map<String, Object> restaurantMap = new HashMap<>();
             
             // Now we know exactly which index corresponds to which column
@@ -50,9 +51,10 @@ public class SearchService {
             restaurantMap.put("address", (String) result[5]);
             restaurantMap.put("contactInfo", (String) result[6]);
             restaurantMap.put("description", (String) result[7]);
+            restaurantMap.put("photoUrl",(String) result[8]);
             
             // Average rating is the last column (index 8)
-            Double avgRating = ((Number) result[8]).doubleValue();
+            Double avgRating = ((Number) result[9]).doubleValue();
             restaurantMap.put("averageRating", Math.round(avgRating * 10.0) / 10.0);
             
             response.add(restaurantMap);

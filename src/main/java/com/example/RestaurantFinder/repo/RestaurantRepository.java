@@ -28,6 +28,7 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, Long> {
         "   r.address, " +
         "   r.contact_info, " +
         "   r.description, " +
+        "   r.photo_url"+
         "   COALESCE(AVG(CAST(rev.rating AS FLOAT)), 0) as avg_rating " +
         "FROM restaurants r " +
         "LEFT JOIN reviews rev ON r.id = rev.restaurant_id " +
