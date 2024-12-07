@@ -178,10 +178,60 @@ public class RestaurantController {
                     ));
         }
     }
+// @PostMapping(value="/updateRestaurant",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE })
+// @PreAuthorize("hasRole('OWNER')")
+// public ResponseEntity<?> updateRestaurant(@RequestPart(value = "restaurantDetails", required = false) RestaurantDto restaurantDto,
+//                                           @RequestPart(value = "restaurantImage", required = false) MultipartFile restaurantImage) {
+//     try {
+//         // Fetch the restaurant by ID
+//         Restaurant existingRestaurant = restaurantRepository.findById(restaurantDto.getRestaurantId()).orElseThrow(() ->
+//                 new Exception("Restaurant not found with ID: " + restaurantDto.getRestaurantId()));
+
+//         // Update restaurant details
+//         existingRestaurant.setName(restaurantDto.getName());
+//         existingRestaurant.setAddress(restaurantDto.getAddress());
+//         existingRestaurant.setCuisineType(restaurantDto.getCuisineType());
+//         existingRestaurant.setDescription(restaurantDto.getDescription());
+//         existingRestaurant.setContactInfo(restaurantDto.getContactInfo());
+
+//         // Update restaurant hours (JSON field)
+//         if (restaurantDto.getHours() != null) {
+//             existingRestaurant.setHours(restaurantDto.getHours());
+//         }
+
+//         // Update restaurant image if provided
+//         if (restaurantImage != null && !restaurantImage.isEmpty()) {
+//             // Delete existing photo if exists
+//             if (existingRestaurant.getPhotoUrl() != null) {
+//                 s3Service.deleteFile(existingRestaurant.getPhotoUrl());
+//             }
+
+//             // Upload new photo
+//             String photoUrl = s3Service.uploadFile(restaurantImage, existingRestaurant.getName());
+//             System.out.println(photoUrl);
+//             existingRestaurant.setPhotoUrl(photoUrl);
+//         }
+        
+//         // Save the updated restaurant
+//         Restaurant savedRestaurant = restaurantRepository.save(existingRestaurant);
+
+//         return ResponseEntity
+//                 .status(HttpStatus.OK)
+//                 .body(savedRestaurant);
+//     } catch (Exception e) {
+//         return ResponseEntity
+//                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                 .body(new ErrorResponse(
+//                         HttpStatus.INTERNAL_SERVER_ERROR.value(),
+//                         "Error updating restaurant: " + e.getMessage(),
+//                         LocalDateTime.now()
+//                 ));
+//     }
+// }
 
 
     @PostMapping("/deleteRestaurant")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteRestaurant(@RequestParam Long restaurantId) {
         try {
             // Check if the restaurant exists

@@ -60,7 +60,7 @@ public class Restaurant {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "photo_url")
+    @Column(name = "photo_url", columnDefinition = "TEXT")
     private String photoUrl;
 
 
