@@ -28,6 +28,7 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, Long> {
         "   r.address, " +
         "   r.contact_info, " +
         "   r.description, " +
+        "   r.photo_url, " +
         "   COALESCE(AVG(CAST(rev.rating AS FLOAT)), 0) as avg_rating " +
         "FROM restaurants r " +
         "LEFT JOIN reviews rev ON r.id = rev.restaurant_id " +
@@ -35,7 +36,7 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, Long> {
         "AND (:category IS NULL OR LOWER(r.category) = LOWER(:category)) " +
         "AND (:price IS NULL OR r.price_range = :price) " +
         "GROUP BY r.id, r.name, r.category, r.cuisine_type, r.price_range, " +
-        "         r.address, r.contact_info, r.description " +
+        "         r.address, r.contact_info, r.description, r.photo_url " +
         "HAVING (:rating IS NULL OR COALESCE(AVG(CAST(rev.rating AS FLOAT)), 0) >= :rating) " +
         "ORDER BY avg_rating DESC", 
         nativeQuery = true)
